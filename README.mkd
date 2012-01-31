@@ -1,0 +1,13 @@
+Velocity For VIM
+================
+
+Installation
+-------------
+
+Use [Pathogen](https://github.com/tpope/vim-pathogen)? If not, try to !!!
+
+    git submodule add git://github.com/lepture/vim-velocity.git ~/.vim/bundle/velocity
+
+Edit your vimrc file:
+
+    au BufRead,BufNewFile *.vm set ft=html syntax=velocity
