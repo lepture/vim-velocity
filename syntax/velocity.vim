@@ -35,9 +35,9 @@ syn match velocityBlock /#[a-z]\{2,\}/ contains=velocityStatement
 syn match velocityBlock /#[a-z]\{2,\}(.\+)/ contains=velocityStatement,velocityVar,velocityString,velocityNumber,velocityMath,velocityList
 syn keyword velocityStatement in set if else elseif end foreach include parse macro cmsparse stop break evaluate define contained
 
-syn match velocityVar /$!\?[a-zA-Z][a-zA-Z0-9_-]\+\.\?[a-zA-Z0-9]*/ contains=velocityFunction display containedin=ALL
+syn match velocityVar /$!\?[a-zA-Z][a-zA-Z0-9_-]\+\(\.\?[a-zA-Z0-9]*\)\+/ contains=velocityFunction display containedin=ALL
 syn match velocityVar /$!\?{[a-zA-Z][a-zA-Z0-9_-]\+}/ display containedin=ALL
-syn match velocityFunction /[a-zA-Z][a-zA-Z0-9_-]\+\.[a-zA-Z][a-zA-Z0-9_-]\+([^)]*)/ contains=velocityString,velocityNumber,velocityList,velocityMath,velocityVar,velocityFunction display containedin=velocityBlock
+syn match velocityFunction /[a-zA-Z][a-zA-Z0-9_-]\+\(\.[a-zA-Z][a-zA-Z0-9_-]\+\)\+([^)]*)/ contains=velocityString,velocityNumber,velocityList,velocityMath,velocityVar,velocityFunction display containedin=velocityBlock
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already
