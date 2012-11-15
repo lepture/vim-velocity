@@ -126,9 +126,12 @@ fun! <SID>HtmlIndentOpen(lnum, pattern)
         \ '.\{-}\(\(<\)\('.a:pattern.'\)\>\)', "\1", 'g')
   let s = substitute(s, "[^\1].*$", '', '')
   let ret = strlen(s)
+
+  " add support for velocity
   if getline(a:lnum) =~ '#\(if\|foreach\|macro\)'
     let ret = ret + 1
   endif
+
   return ret
 endfun
 
@@ -138,6 +141,8 @@ fun! <SID>HtmlIndentClose(lnum, pattern)
         \ '.\{-}\(\(<\)/\('.a:pattern.'\)\>>\)', "\1", 'g')
   let s = substitute(s, "[^\1].*$", '', '')
   let ret = strlen(s)
+
+  " add support for velocity
   if getline(a:lnum) =~ '#\(end\|else\|elseif\)'
     let ret = ret + 1
   endif
@@ -156,8 +161,10 @@ endfun
 
 " [-- return the sum of indents respecting the syntax of a:lnum --]
 fun! <SID>HtmlIndentSum(lnum, style)
+
+  " add support for velocity
   if a:style == match(getline(a:lnum), '^\s*\(</\|#\<\(end\|else\|elseif\)\>\)')
-    "echo [a:style,  match(getline(a:lnum), '^\s*\(</\|#\<\(end\|else\)\>\)'), getline(a:lnum)]
+    " add support for velocity
     if a:style == match(getline(a:lnum), '^\s*\(</\<\('.g:html_indent_tags.'\)\>\|#\<\(end\|else\|elseif\)\>\)')
       let open = <SID>HtmlIndentOpen(a:lnum, g:html_indent_tags)
       let close = <SID>HtmlIndentClose(a:lnum, g:html_indent_tags)
@@ -242,6 +249,7 @@ fun! HtmlIndentGet(lnum)
     setlocal noic
   endif
 
+  " by shepherdwind, support for velocity, else and elseif
   if getline(lnum) =~ '^\s*#else'
     let lnum = lnum - 1
   endif
