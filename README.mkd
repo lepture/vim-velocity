@@ -11,3 +11,9 @@ Use [Pathogen](https://github.com/tpope/vim-pathogen)? If not, try to !!!
 Edit your vimrc file:
 
     au BufRead,BufNewFile *.vm set ft=html syntax=velocity
+
+Indent
+------
+
+Support velocity indent for key words `if` `foreach` `macro`. Just modify the 
+indent for html.
