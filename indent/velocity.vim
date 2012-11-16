@@ -1,262 +1,77 @@
-" Description:	html indenter
-" Author:	Johannes Zellner <johannes@zellner.org>
-" Last Change:	Mo, 05 Jun 2006 22:32:41 CEST
-" 		Restoring 'cpo' and 'ic' added by Bram 2006 May 5
-" Globals:	g:html_indent_tags	   -- indenting tags
-"		g:html_indent_strict       -- inhibit 'O O' elements
-"		g:html_indent_strict_table -- inhibit 'O -' elements
+" Vim indent file
+" Language:     Velocity Template Language (VTL)
+" Maintainer:   Eward Song<eward.song@gmail.com>
+"
+" Mostly based on https://bitbucket.org/sjl/dotfiles/raw/e38d6bb92f91c17216bf70148c34d01ed53803ce/vim/bundle/django-custom/indent/htmldjango.vim
+"
+" To use: save as ~/.vim/indent/velocity.vim
 
-" Only load this indent file when no other was loaded.
 if exists("b:did_indent")
-  finish
+    finish
 endif
+
+runtime! indent/html.vim
+unlet! b:did_indent
+
+if &l:indentexpr == ''
+    if &l:cindent
+        let &l:indentexpr = 'cindent(v:lnum)'
+    else
+        let &l:indentexpr = 'indent(prevnonblank(v:lnum-1))'
+    endif
+endif
+let b:html_indentexpr = &l:indentexpr
+
 let b:did_indent = 1
 
+setlocal indentexpr=GetVelocityIndent()
+setlocal indentkeys=o,O,*<Return>,{,},o,O,!^F,<>>
 
-" [-- local settings (must come before aborting the script) --]
-setlocal indentexpr=HtmlIndentGet(v:lnum)
-setlocal indentkeys=o,O,*<Return>,<>>,{,}
-
-
-if exists('g:html_indent_tags')
-  unlet g:html_indent_tags
+" Only define the function once.
+if exists("*GetVelocityIndent")
+    finish
 endif
 
-" [-- helper function to assemble tag list --]
-fun! <SID>HtmlIndentPush(tag)
-  if exists('g:html_indent_tags')
-    let g:html_indent_tags = g:html_indent_tags.'\|'.a:tag
-  else
-    let g:html_indent_tags = a:tag
-  endif
-endfun
-
-
-" [-- <ELEMENT ? - - ...> --]
-call <SID>HtmlIndentPush('a')
-call <SID>HtmlIndentPush('abbr')
-call <SID>HtmlIndentPush('acronym')
-call <SID>HtmlIndentPush('address')
-call <SID>HtmlIndentPush('b')
-call <SID>HtmlIndentPush('bdo')
-call <SID>HtmlIndentPush('big')
-call <SID>HtmlIndentPush('blockquote')
-call <SID>HtmlIndentPush('button')
-call <SID>HtmlIndentPush('caption')
-call <SID>HtmlIndentPush('center')
-call <SID>HtmlIndentPush('cite')
-call <SID>HtmlIndentPush('code')
-call <SID>HtmlIndentPush('colgroup')
-call <SID>HtmlIndentPush('del')
-call <SID>HtmlIndentPush('dfn')
-call <SID>HtmlIndentPush('dir')
-call <SID>HtmlIndentPush('div')
-call <SID>HtmlIndentPush('dl')
-call <SID>HtmlIndentPush('em')
-call <SID>HtmlIndentPush('fieldset')
-call <SID>HtmlIndentPush('font')
-call <SID>HtmlIndentPush('form')
-call <SID>HtmlIndentPush('frameset')
-call <SID>HtmlIndentPush('h1')
-call <SID>HtmlIndentPush('h2')
-call <SID>HtmlIndentPush('h3')
-call <SID>HtmlIndentPush('h4')
-call <SID>HtmlIndentPush('h5')
-call <SID>HtmlIndentPush('h6')
-call <SID>HtmlIndentPush('i')
-call <SID>HtmlIndentPush('iframe')
-call <SID>HtmlIndentPush('ins')
-call <SID>HtmlIndentPush('kbd')
-call <SID>HtmlIndentPush('label')
-call <SID>HtmlIndentPush('legend')
-call <SID>HtmlIndentPush('map')
-call <SID>HtmlIndentPush('menu')
-call <SID>HtmlIndentPush('noframes')
-call <SID>HtmlIndentPush('noscript')
-call <SID>HtmlIndentPush('object')
-call <SID>HtmlIndentPush('ol')
-call <SID>HtmlIndentPush('optgroup')
-" call <SID>HtmlIndentPush('pre')
-call <SID>HtmlIndentPush('q')
-call <SID>HtmlIndentPush('s')
-call <SID>HtmlIndentPush('samp')
-call <SID>HtmlIndentPush('script')
-call <SID>HtmlIndentPush('select')
-call <SID>HtmlIndentPush('small')
-call <SID>HtmlIndentPush('span')
-call <SID>HtmlIndentPush('strong')
-call <SID>HtmlIndentPush('style')
-call <SID>HtmlIndentPush('sub')
-call <SID>HtmlIndentPush('sup')
-call <SID>HtmlIndentPush('table')
-call <SID>HtmlIndentPush('textarea')
-call <SID>HtmlIndentPush('title')
-call <SID>HtmlIndentPush('tt')
-call <SID>HtmlIndentPush('u')
-call <SID>HtmlIndentPush('ul')
-call <SID>HtmlIndentPush('var')
-
-
-" [-- <ELEMENT ? O O ...> --]
-if !exists('g:html_indent_strict')
-  call <SID>HtmlIndentPush('body')
-  call <SID>HtmlIndentPush('head')
-  call <SID>HtmlIndentPush('html')
-  call <SID>HtmlIndentPush('tbody')
-endif
-
-
-" [-- <ELEMENT ? O - ...> --]
-if !exists('g:html_indent_strict_table')
-  call <SID>HtmlIndentPush('th')
-  call <SID>HtmlIndentPush('td')
-  call <SID>HtmlIndentPush('tr')
-  call <SID>HtmlIndentPush('tfoot')
-  call <SID>HtmlIndentPush('thead')
-endif
-
-delfun <SID>HtmlIndentPush
-
-let s:cpo_save = &cpo
-set cpo-=C
-
-" [-- count indent-increasing tags of line a:lnum --]
-fun! <SID>HtmlIndentOpen(lnum, pattern)
-  let s = substitute('x'.getline(a:lnum),
-        \ '.\{-}\(\(<\)\('.a:pattern.'\)\>\)', "\1", 'g')
-  let s = substitute(s, "[^\1].*$", '', '')
-  let ret = strlen(s)
-
-  " add support for velocity
-  if getline(a:lnum) =~ '#\(if\|foreach\|macro\)'
-    let ret = ret + 1
-  endif
-
-  return ret
-endfun
-
-" [-- count indent-decreasing tags of line a:lnum --]
-fun! <SID>HtmlIndentClose(lnum, pattern)
-  let s = substitute('x'.getline(a:lnum),
-        \ '.\{-}\(\(<\)/\('.a:pattern.'\)\>>\)', "\1", 'g')
-  let s = substitute(s, "[^\1].*$", '', '')
-  let ret = strlen(s)
-
-  " add support for velocity
-  if getline(a:lnum) =~ '#\(end\|else\|elseif\)'
-    let ret = ret + 1
-  endif
-  return ret
-endfun
-
-" [-- count indent-increasing '{' of (java|css) line a:lnum --]
-fun! <SID>HtmlIndentOpenAlt(lnum)
-  return strlen(substitute(getline(a:lnum), '[^{]\+', '', 'g'))
-endfun
-
-" [-- count indent-decreasing '}' of (java|css) line a:lnum --]
-fun! <SID>HtmlIndentCloseAlt(lnum)
-  return strlen(substitute(getline(a:lnum), '[^}]\+', '', 'g'))
-endfun
-
-" [-- return the sum of indents respecting the syntax of a:lnum --]
-fun! <SID>HtmlIndentSum(lnum, style)
-
-  " add support for velocity
-  if a:style == match(getline(a:lnum), '^\s*\(</\|#\<\(end\|else\|elseif\)\>\)')
-    " add support for velocity
-    if a:style == match(getline(a:lnum), '^\s*\(</\<\('.g:html_indent_tags.'\)\>\|#\<\(end\|else\|elseif\)\>\)')
-      let open = <SID>HtmlIndentOpen(a:lnum, g:html_indent_tags)
-      let close = <SID>HtmlIndentClose(a:lnum, g:html_indent_tags)
-      if 0 != open || 0 != close
-        return open - close
-      endif
+function! GetVelocityIndent(...)
+    if a:0 && a:1 == '.'
+        let v:lnum = line('.')
+    elseif a:0 && a:1 =~ '^\d'
+        let v:lnum = a:1
     endif
-  endif
-  if '' != &syntax &&
-        \ synIDattr(synID(a:lnum, 1, 1), 'name') =~ '\(css\|java\).*' &&
-        \ synIDattr(synID(a:lnum, strlen(getline(a:lnum)), 1), 'name')
-        \ =~ '\(css\|java\).*'
-    if a:style == match(getline(a:lnum), '^\s*}')
-      return <SID>HtmlIndentOpenAlt(a:lnum) - <SID>HtmlIndentCloseAlt(a:lnum)
+    let vcol = col('.')
+
+    call cursor(v:lnum,vcol)
+
+    exe "let ind = ".b:html_indentexpr
+
+    let lnum = prevnonblank(v:lnum-1)
+    let pnb = getline(lnum)
+    let cur = getline(v:lnum)
+
+    let tagstart = '^\s*#'
+
+    let blocktags = '\<\(if\|foreach\|macro\)\>'
+    let midtags = '\<\(elseif\|else\)\>'
+
+    let pnb_blockstart = pnb =~# tagstart . blocktags
+    let pnb_blockend   = pnb =~# tagstart . 'end'
+    let pnb_blockmid   = pnb =~# tagstart . midtags
+
+    let cur_blockstart = cur =~# tagstart . blocktags
+    let cur_blockend   = cur =~# tagstart . 'end'
+    let cur_blockmid   = cur =~# tagstart . midtags
+
+    if pnb_blockstart && !pnb_blockend
+        let ind = ind + &sw
+    elseif pnb_blockmid && !pnb_blockend
+        let ind = ind + &sw
     endif
-  endif
-  return 0
-endfun
 
-fun! HtmlIndentGet(lnum)
-  " Find a non-empty line above the current line.
-  let lnum = prevnonblank(a:lnum - 1)
-
-  " Hit the start of the file, use zero indent.
-  if lnum == 0
-    return 0
-  endif
-
-  let restore_ic = &ic
-  setlocal ic " ignore case
-
-  " [-- special handling for <pre>: no indenting --]
-  if getline(a:lnum) =~ '\c</pre>'
-        \ || 0 < searchpair('\c<pre>', '', '\c</pre>', 'nWb')
-        \ || 0 < searchpair('\c<pre>', '', '\c</pre>', 'nW')
-    " we're in a line with </pre> or inside <pre> ... </pre>
-    if restore_ic == 0
-      setlocal noic
+    if cur_blockend && !cur_blockstart
+        let ind = ind - &sw
+    elseif cur_blockmid
+        let ind = ind - &sw
     endif
-    return -1
-  endif
 
-  " [-- special handling for <javascript>: use cindent --]
-  let js = '<script.*type\s*=\s*.*java'
-
-  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  " by Tye Zdrojewski <zdro@yahoo.com>, 05 Jun 2006
-  " ZDR: This needs to be an AND (we are 'after the start of the pair' AND
-  "      we are 'before the end of the pair').  Otherwise, indentation
-  "      before the start of the script block will be affected; the end of
-  "      the pair will still match if we are before the beginning of the
-  "      pair.
-  "
-  if   0 < searchpair(js, '', '</script>', 'nWb')
-        \ && 0 < searchpair(js, '', '</script>', 'nW')
-    " we're inside javascript
-    if getline(lnum) !~ js && getline(a:lnum) != '</script>'
-      if restore_ic == 0
-        setlocal noic
-      endif
-      return cindent(a:lnum)
-    endif
-  endif
-
-  if getline(lnum) =~ '\c</pre>'
-    " line before the current line a:lnum contains
-    " a closing </pre>. --> search for line before
-    " starting <pre> to restore the indent.
-    let preline = prevnonblank(search('\c<pre>', 'bW') - 1)
-    if preline > 0
-      if restore_ic == 0
-        setlocal noic
-      endif
-      return indent(preline)
-    endif
-  endif
-
-  let ind = <SID>HtmlIndentSum(lnum, -1)
-  let ind = ind + <SID>HtmlIndentSum(a:lnum, 0)
-
-  if restore_ic == 0
-    setlocal noic
-  endif
-
-  " by shepherdwind, support for velocity, else and elseif
-  if getline(lnum) =~ '^\s*#else'
-    let lnum = lnum - 1
-  endif
-  return indent(lnum) + (&sw * ind)
-endfun
-
-let &cpo = s:cpo_save
-unlet s:cpo_save
-
-" [-- EOF <runtime>/indent/html.vim --]
+    return ind
+endfunction
