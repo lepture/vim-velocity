@@ -8,6 +8,8 @@ Use [Pathogen](https://github.com/tpope/vim-pathogen)? If not, try to !!!
 
     git submodule add git://github.com/lepture/vim-velocity.git ~/.vim/bundle/velocity
 
-Edit your vimrc file:
+Indent
+------
 
-    au BufRead,BufNewFile *.vm set ft=html syntax=velocity
+Support velocity indent for key words `if` `foreach` `macro`. Base on 
+[htmldjango.vim](https://bitbucket.org/sjl/dotfiles/raw/e38d6bb92f91c17216bf70148c34d01ed53803ce/vim/bundle/django-custom/indent/htmldjango.vim)
