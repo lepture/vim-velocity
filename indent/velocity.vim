@@ -10,7 +10,7 @@ if exists("b:did_indent")
     finish
 endif
 
-runtime! indent/html.vim
+runtime! indent/default-html.vim
 unlet! b:did_indent
 
 if &l:indentexpr == ''
@@ -48,7 +48,7 @@ function! GetVelocityIndent(...)
     let pnb = getline(lnum)
     let cur = getline(v:lnum)
 
-    let tagstart = '^\s*#'
+    let tagstart = '#'
 
     let blocktags = '\<\(if\|foreach\|macro\)\>'
     let midtags = '\<\(elseif\|else\)\>'
